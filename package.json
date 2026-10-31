@@ -1,0 +1,38 @@
+{
+  "name": "mealtime",
+  "private": true,
+  "version": "1.0.0",
+  "description": "每日吃什么 · 家庭点菜系统",
+  "type": "module",
+  "workspaces": [
+    "web",
+    "server"
+  ],
+  "scripts": {
+    "dev": "concurrently -n server,web -c yellow,cyan \"npm run dev -w server\" \"npm run dev -w web\"",
+    "dev:server": "npm run dev -w server",
+    "dev:web": "npm run dev -w web",
+    "build": "npm run build -w web",
+    "build:deploy": "npm run build -w web && npm run bundle -w server",
+    "deploy:nas": "bash deploy/deploy-nas.sh",
+    "seed": "npm run seed -w server",
+    "seed:force": "npm run seed -w server -- --force",
+    "seed:demo": "npm run seed -w server -- --demo 12",
+    "start": "npm run start -w server",
+    "typecheck": "npm run typecheck -w server && npm run typecheck -w web",
+    "lint": "eslint .",
+    "test": "concurrently -n server,web -c yellow,cyan \"npm run test -w server\" \"npm run test -w web\"",
+    "test:coverage": "concurrently -n server,web -c yellow,cyan \"npm run test:coverage -w server\" \"npm run test:coverage -w web\""
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "concurrently": "^9.1.2",
+    "eslint": "^10.13.0",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "globals": "^17.13.0",
+    "typescript-eslint": "^8.72.0"
+  },
+  "engines": {
+    "node": ">=22.5.0"
+  }
+}

@@ -1,0 +1,43 @@
+# NAS 部署用编排文件（在 NAS 上的仓库目录里执行）。
+#
+# 正常不需要手动跑，直接用开发机上的：
+#   npm run deploy:nas
+#
+# 手动执行：
+#   cd /opt/mealtime
+#   docker compose -f deploy/docker-compose.yml up -d --build
+services:
+  mealtime:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile
+    image: mealtime:latest
+    container_name: mealtime
+    restart: unless-stopped
+    environment:
+      TZ: Asia/Shanghai
+      PORT: 8787
+      DB_PATH: /app/data/mealtime.db
+    # 安装目录下的 .env（部署脚本已把它排除在 rsync 之外，发布不会覆盖/删除它）：
+    #   DEEPSEEK_API_KEY   AI 加菜（可选），不写 = 功能关闭
+    # 用 env_file 而不是 `environment: ${}`：
+    # compose 的 ${} 插值只从「compose 文件所在目录」的 .env 与当前 shell 环境取值，
+    # 而本文件在 deploy/ 下，安装目录的 .env 根本读不到（踩过：变量看着有值，
+    # 其实是被 :-默认值 兜的，容器里拿到的是空串）。
+    env_file:
+      - path: ../.env
+        required: false
+    volumes:
+      # 数据库落在宿主机，容器重建不丢数据，也方便直接备份
+      - ../data:/app/data
+    ports:
+      # 默认只绑回环：端口不暴露到局域网，Tailscale serve 反代到 127.0.0.1:8787（见 deploy/tailscale.md）。
+      # 家里手机要连同一 Wi-Fi 直连（http://<NAS 内网 IP>:8787）时设 BIND_ADDR=0.0.0.0：
+      #   BIND_ADDR=0.0.0.0 docker compose -f deploy/docker-compose.yml up -d --build
+      # npm run deploy:nas 默认就传 0.0.0.0（保住家人手机直连），BIND_ADDR=127.0.0.1 可收回只本机。
+      - "${BIND_ADDR:-127.0.0.1}:8787:8787"
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"

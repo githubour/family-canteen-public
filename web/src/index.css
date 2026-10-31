@@ -1,0 +1,285 @@
+@import 'tailwindcss';
+
+/*
+ * Tailwind v4 CSS-first 主题：原 tailwind.config.ts 的断点 / 颜色 /
+ * 阴影 / 圆角 / 动画全部平移进 @theme，配置文件与 postcss 配置随之删除
+ * （v4 由 @tailwindcss/vite 插件直接处理，且自带前缀，autoprefixer 不再需要）。
+ */
+@theme {
+  /* lg 从默认 1024px 提前到 640px：iPad 竖屏 744px、手机横屏（≥640px）都启用宽布局。
+     之前定 1024px 时 iPad 竖屏会缩成 480px 的手机窄条；现在只看宽度，
+     矮视口的紧凑化交给下面的 land 变体。 */
+  --breakpoint-lg: 640px;
+
+  /* -apple-system 在苹果设备上让英文/数字走 SF Pro，中文自动落到苹方；
+     其他平台逐级退化到各自系统字体，零下载成本。 */
+  --font-sans: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Hiragino Sans GB',
+    'Microsoft YaHei', system-ui, sans-serif;
+
+  --color-brand-50: #FFF3EC;
+  --color-brand-100: #FFE3D4;
+  --color-brand-200: #FFC9AC;
+  --color-brand-300: #FFB347;
+  --color-brand-400: #FF8A3D;
+  --color-brand-500: #FF6B35;
+  --color-brand-600: #F0521B;
+  --color-brand-700: #C63F13;
+
+  --color-cream-50: #FFFCFA;
+  --color-cream-100: #FFF8F3;
+  --color-cream-200: #F7EFE8;
+  --color-cream-300: #F5EDE6;
+  --color-cream-400: #EADFD6;
+
+  --color-ink-900: #1F1B18;
+  --color-ink-700: #544E49;
+  --color-ink-600: #6B6560;
+  --color-ink-500: #6F6760;
+  /* 450+ 小字在奶油底上需要 4.5:1：ink-400 调深到 4.62:1；ink-300 留给图标（≥3:1） */
+  --color-ink-400: #78706A;
+  --color-ink-300: #8F867E;
+  --color-ink-200: #CFC7BF;
+
+  --color-fresh: #16A34A;
+  --color-alert: #EF4444;
+  --color-warn: #F59E0B;
+  --color-cool: #2563EB;
+
+  --radius-xl2: 1.25rem;
+  --radius-xl3: 1.75rem;
+
+  --shadow-card: 0 6px 24px -12px rgb(64 32 12 / 0.18);
+  /* 悬浮橙色购物条：外投影 + 顶部一道 1px 高光（玻璃件的镜面反光） */
+  --shadow-float: 0 12px 32px -12px rgb(255 107 53 / 0.45), inset 0 1px 0 rgb(255 255 255 / 0.35);
+  /* 悬浮玻璃胶囊底栏 */
+  --shadow-nav: 0 8px 32px -8px rgb(64 32 12 / 0.28);
+  /* 顶部通知横幅（深色玻璃）：中性暗投影，不染品牌色 */
+  --shadow-hud: 0 10px 30px -10px rgb(0 0 0 / 0.4);
+  --shadow-inset: inset 0 1px 0 rgb(255 255 255 / 0.6);
+
+  --animate-fade-up: fade-up 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
+  --animate-pop: pop 0.28s cubic-bezier(0.22, 1, 0.36, 1) both;
+  /* 选人反馈：头像回弹跳一下，同时向外扩散一圈涟漪。
+     涟漪颜色跟随成员主题色，由 MemberPicker 通过 --select-ring 内联注入。 */
+  --animate-select-pop: select-pop 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+  --animate-pulse-ring: pulse-ring 1.8s ease-out infinite;
+  --animate-shimmer: shimmer 1.4s infinite;
+  --animate-slide-up: slide-up 0.3s cubic-bezier(0.22, 1, 0.36, 1) both;
+
+  @keyframes fade-up {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes pop {
+    0% { transform: scale(0.92); opacity: 0; }
+    60% { transform: scale(1.03); opacity: 1; }
+    100% { transform: scale(1); opacity: 1; }
+  }
+  @keyframes select-pop {
+    0% { transform: scale(0.82); box-shadow: 0 0 0 0 var(--select-ring, rgba(255, 107, 53, 0.5)); }
+    55% { transform: scale(1.1); box-shadow: 0 0 0 8px transparent; }
+    100% { transform: scale(1); box-shadow: 0 0 0 16px transparent; }
+  }
+  @keyframes pulse-ring {
+    0% { box-shadow: 0 0 0 0 rgba(255, 107, 53, 0.45); }
+    70% { box-shadow: 0 0 0 12px rgba(255, 107, 53, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(255, 107, 53, 0); }
+  }
+  @keyframes shimmer {
+    100% { transform: translateX(100%); }
+  }
+  @keyframes slide-up {
+    from { transform: translateY(100%); }
+    to { transform: translateY(0); }
+  }
+}
+
+/* 横屏手机（宽度够但高度 <500px）：在 lg 布局之上再做紧凑化——
+   更窄的导航栏、更小的间距，把竖向空间尽量还给内容。
+   v3 里定义在 screens.land（同类样式 land 优先），v4 用 @custom-variant 等价实现。 */
+@custom-variant land (@media (min-width: 640px) and (max-height: 500px));
+
+@layer base {
+  /* v3→v4 边框默认色还原：v4 的 border 默认 currentColor，
+     v3 时代默认 gray-200（官方升级指南给出的兼容段）。 */
+  *, ::after, ::before, ::backdrop, ::file-selector-button {
+    border-color: var(--color-gray-200, currentColor);
+  }
+}
+
+@layer base {
+  :root {
+    color-scheme: light;
+  /*
+   * 应用内容宽度。竖屏手机保持单列窄容器；
+   * 宽度 ≥640px（iPad 竖屏、手机横屏都落在这里）放宽，
+   * 与 tailwind.config 的 lg 断点是同一个条件，两处必须同步改——
+   * 否则会出现「左栏布局配 480px 内容」的错位。
+   */
+  --app-max-w: 480px;
+  }
+
+  @media (min-width: 640px) {
+    :root {
+      --app-max-w: 1100px;
+    }
+  }
+
+  /* 桌面大屏（Mac mini + 4K）：再放宽一档，配合 xl 的五列菜品格，
+     避免宽屏两侧留大片空白。xl 是 Tailwind 默认 1280px 断点。 */
+  @media (min-width: 1280px) {
+    :root {
+      --app-max-w: 1440px;
+    }
+  }
+
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+
+  body {
+    @apply bg-cream-200 text-ink-900 antialiased;
+    /* -apple-system 在苹果设备上让英文/数字走 SF Pro，中文自动落到苹方；
+       其他平台逐级退化到各自系统字体，零下载成本。 */
+    font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Hiragino Sans GB',
+      'Microsoft YaHei', system-ui, sans-serif;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-text-size-adjust: 100%;
+    /* 屏蔽 iOS 的双击缩放，点按响应更跟手 */
+    touch-action: manipulation;
+    overscroll-behavior-y: none;
+  }
+
+  button {
+    cursor: pointer;
+  }
+
+  input,
+  textarea,
+  select {
+    @apply outline-hidden;
+    -webkit-appearance: none;
+  }
+
+  ::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+  }
+}
+
+@layer components {
+  /* 移动优先：竖屏收成一列居中的手机视图，横屏/平板放宽以利用横向空间 */
+  .app-shell {
+    @apply mx-auto flex min-h-full w-full flex-col bg-cream-100;
+    max-width: var(--app-max-w);
+    /* 横屏刘海屏（如 iPhone/带圆角的 iPad）避免内容被切掉 */
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+  }
+
+  /* 与 .app-shell 同宽的底部固定条：底部导航 / 购物车栏 / 提交栏 */
+  .app-bar {
+    @apply mx-auto w-full;
+    max-width: var(--app-max-w);
+  }
+
+  .card {
+    @apply rounded-xl2 border border-cream-300/70 bg-white shadow-card;
+  }
+
+  .warm-gradient {
+    background-image: linear-gradient(135deg, #ff8a3d 0%, #ff6b35 55%, #f0521b 100%);
+  }
+
+  /* 首页头部专用（别与按钮共用的 .warm-gradient 混用）：顶部 64px（约状态栏高度）固定为
+     渐变起点橙，让 iOS standalone 的状态栏背板与头部无缝衔接；方向取竖直，左右两侧色彩
+     走势一致，不会像 135° 斜向渐变那样在状态栏下缘露出左右错位的接缝。 */
+  .hero-gradient {
+    background-image: linear-gradient(180deg, #ff8a3d 0, #ff8a3d 64px, #ff6b35);
+  }
+
+  /* 悬浮玻璃件（胶囊底栏 / 浮动卡片）：iOS「液态玻璃」的网页近似（实时模糊 + 饱和度提升），
+     圆角与定位由使用方定。
+     透明度调高后靠顶缘 inset 高光撑住「玻璃受光边」的质感；
+     shadow-nav 保留在 @apply 里以确保 --shadow-nav 变量被输出（v4 只编译用到的变量）。 */
+  .glass-float {
+    @apply border border-white/70 bg-white/45 shadow-nav;
+    box-shadow:
+      var(--shadow-nav),
+      inset 0 1px 0 rgb(255 255 255 / 0.55);
+    -webkit-backdrop-filter: saturate(2) blur(20px);
+    backdrop-filter: saturate(2) blur(20px);
+  }
+
+  /* 吸顶面板（页面头 / 筛选行）：内容从底下滚过时做玻璃过渡 */
+  .glass-panel {
+    @apply bg-cream-100/55;
+    -webkit-backdrop-filter: saturate(2) blur(16px);
+    backdrop-filter: saturate(2) blur(16px);
+  }
+
+  .chip {
+    @apply inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-medium;
+  }
+
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .press {
+    @apply transition-transform duration-150 active:scale-[0.97];
+  }
+
+  .skeleton {
+    @apply relative overflow-hidden bg-cream-300/70;
+  }
+
+  .skeleton::after {
+    content: '';
+    @apply absolute inset-0 -translate-x-full animate-shimmer;
+    background-image: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.75), transparent);
+  }
+}
+
+/* 兜底：不支持 backdrop-filter 的浏览器、或系统开了「降低透明度」时，
+   玻璃件退回实色，保证文字可读（iOS 设置→辅助功能→显示与文字大小）。 */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .glass-float,
+  .glass-panel {
+    background: #fff;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+  .glass-float {
+    border-color: #f5ede6;
+  }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .glass-float,
+  .glass-panel {
+    background: #fff;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+  .glass-float {
+    border-color: #f5ede6;
+  }
+}
+
+/* 系统「减弱动态效果」开启时（iOS：辅助功能→动态效果），动画与过渡压到近乎瞬时、
+   只留终态：入场类（fade-up/pop/select-pop/slide-up）直接到位，骨架屏 shimmer 与
+   新单高亮 pulse-ring 这两个 infinite 动画不再持续占用合成层。
+   只影响显式开启该设置的用户，默认观感不变。 */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

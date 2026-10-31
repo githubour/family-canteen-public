@@ -1,0 +1,19 @@
+# 构建上下文里只需要保留「产物 + 部署文件」。
+# 注意：不要排除 dist/——server/dist 与 web/dist 正是镜像要复制的产物。
+node_modules
+**/node_modules
+
+# 本地数据库与备份绝不进镜像
+data
+**/backups
+
+# 开发期临时目录
+.playwright-cli
+generated-images
+
+*.log
+.DS_Store
+.env
+.env.local
+.git
+.gitignore

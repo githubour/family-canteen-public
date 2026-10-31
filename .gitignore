@@ -1,0 +1,36 @@
+node_modules/
+dist/
+dist-ssr/
+.DS_Store
+*.log
+npm-debug.log*
+
+# 本地数据（SQLite 及其 WAL 副本）；必须根锚定 /data/，
+# 否则会误伤 server/src/data/ 下的源码数据文件（nutritionReference.ts 曾因此漏入库）
+/data/
+/server/data/
+*.sqlite
+*.sqlite-journal
+*.sqlite-wal
+*.sqlite-shm
+*.db
+*.db-wal
+*.db-shm
+
+# 环境变量
+.env
+.env.local
+
+# 编辑器
+.vscode/*
+!.vscode/extensions.json
+.idea/
+
+# 构建产物（由 npm run build:deploy 生成，不入库）
+server/dist/
+
+# IDE/Agent 状态（保留在磁盘上，但不进版本库）
+.codebuddy/
+
+# Agent 协作说明（仅本机，不进公共版）
+AGENTS.md
