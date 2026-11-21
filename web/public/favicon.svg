@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="64" height="64">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#FF8A3D"/>
+      <stop offset="1" stop-color="#E23E12"/>
+    </linearGradient>
+    <linearGradient id="bowl" x1="0.2" y1="0" x2="0.8" y2="1">
+      <stop offset="0" stop-color="#FFFFFF"/>
+      <stop offset="1" stop-color="#FFE7D2"/>
+    </linearGradient>
+    <linearGradient id="heart" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#FFFFFF"/>
+      <stop offset="1" stop-color="#FFE3D0"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1024" height="1024" rx="232" fill="url(#g)"/>
+
+  <path d="M512 424C466 374 396 358 396 300C396 246 456 222 496 256C504 262 510 272 512 282C514 272 520 262 528 256C568 222 628 246 628 300C628 358 558 374 512 424Z"
+        fill="url(#heart)"/>
+
+  <ellipse cx="512" cy="858" rx="246" ry="24" fill="#B83208" fill-opacity="0.26"/>
+  <path d="M226 588C244 766 360 844 512 844C664 844 780 766 798 588Z" fill="url(#bowl)"/>
+  <rect x="456" y="826" width="112" height="48" rx="18" fill="#FFDFC6"/>
+  <ellipse cx="512" cy="588" rx="286" ry="60" fill="#FFFFFF"/>
+  <ellipse cx="512" cy="588" rx="248" ry="44" fill="#F5DDC5"/>
+  <path d="M286 580C308 514 398 486 512 486C626 486 716 514 738 580C682 598 602 606 512 606C422 606 342 598 286 580Z" fill="#FFF9EF"/>
+</svg>

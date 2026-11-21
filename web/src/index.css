@@ -1,0 +1,621 @@
+@import 'tailwindcss';
+
+/*
+ * Tailwind v4 CSS-first 主题：原 tailwind.config.ts 的断点 / 颜色 /
+ * 阴影 / 圆角 / 动画全部平移进 @theme，配置文件与 postcss 配置随之删除
+ * （v4 由 @tailwindcss/vite 插件直接处理，且自带前缀，autoprefixer 不再需要）。
+ */
+@theme {
+  /* lg 从默认 1024px 提前到 640px：iPad 竖屏 744px、手机横屏（≥640px）都启用宽布局。
+     之前定 1024px 时 iPad 竖屏会缩成 480px 的手机窄条；现在只看宽度，
+     矮视口的紧凑化交给下面的 land 变体。 */
+  --breakpoint-lg: 640px;
+
+  /* -apple-system 在苹果设备上让英文/数字走 SF Pro，中文自动落到苹方；
+     其他平台逐级退化到各自系统字体，零下载成本。 */
+  --font-sans: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Hiragino Sans GB',
+    'Microsoft YaHei', system-ui, sans-serif;
+
+  --color-brand-50: #FFF3EC;
+  --color-brand-100: #FFE3D4;
+  --color-brand-200: #FFC9AC;
+  --color-brand-300: #FFB347;
+  --color-brand-400: #FF8A3D;
+  --color-brand-500: #FF6B35;
+  --color-brand-600: #F0521B;
+  --color-brand-700: #C63F13;
+
+  --color-cream-50: #FFFCFA;
+  --color-cream-100: #FFF8F3;
+  --color-cream-200: #F7EFE8;
+  --color-cream-300: #F5EDE6;
+  --color-cream-400: #EADFD6;
+
+  --color-ink-900: #1F1B18;
+  --color-ink-700: #544E49;
+  --color-ink-600: #6B6560;
+  --color-ink-500: #6F6760;
+  /* 450+ 小字在奶油底上需要 4.5:1：ink-400 调深到 4.62:1；ink-300 留给图标（≥3:1） */
+  --color-ink-400: #78706A;
+  --color-ink-300: #8F867E;
+  --color-ink-200: #CFC7BF;
+
+  --color-fresh: #16A34A;
+  --color-alert: #EF4444;
+  --color-warn: #F59E0B;
+  --color-cool: #2563EB;
+
+  --radius-xl2: 1.25rem;
+  --radius-xl3: 1.75rem;
+
+  /* 交互控件尺寸阶梯：44px 紧凑入口 → 48px 面板主操作（4px 一档，都满足 44pt 触控下限）。
+     图标统一 18px；入口只做图标，主操作与同排「交给 AI」同高、等宽。 */
+  --spacing-control-entry: 2.75rem;
+  --spacing-control-primary: 3rem;
+
+  --shadow-card: 0 6px 24px -12px rgb(58 48 42 / 0.14);
+  /* 品牌渐变按钮：中性暖灰外投影 + 顶部一道 1px 白色高光 */
+  --shadow-float: 0 10px 28px -12px rgb(58 48 42 / 0.2), inset 0 1px 0 rgb(255 255 255 / 0.35);
+  /* 玻璃件统一外投影：只向下、中性暖灰，不再混用暖棕 / 品牌橙 / 纯黑 */
+  --shadow-glass: 0 12px 32px -14px rgb(58 48 42 / 0.2), 0 2px 8px -4px rgb(58 48 42 / 0.1);
+  /* 玻璃卡片：1px 接触影 + 16px 柔和外扩；顶部内高光由 .card 内联补，避免重复描黑 */
+  --shadow-glass-card: 0 1px 2px -1px rgb(58 48 42 / 0.08), 0 10px 28px -18px rgb(58 48 42 / 0.24);
+  /* 玻璃控件：只留 1px 接触影，密集排布时不制造视觉噪音 */
+  --shadow-glass-control: 0 1px 2px -1px rgb(58 48 42 / 0.08);
+  --shadow-hud: 0 10px 30px -12px rgb(58 48 42 / 0.24);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  --animate-fade-up: fade-up 0.31s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  --animate-pop: pop 0.31s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  /* 选人反馈：头像回弹跳一下，同时向外扩散一圈涟漪。
+     涟漪颜色跟随成员主题色，由 MemberPicker 通过 --select-ring 内联注入。 */
+  --animate-select-pop: select-pop 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+  --animate-pulse-ring: pulse-ring 1.8s ease-out infinite;
+  --animate-shimmer: shimmer 1.4s infinite;
+  --animate-slide-up: slide-up 0.31s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+
+  @keyframes fade-up {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes pop {
+    0% { transform: scale(0.92); opacity: 0; }
+    60% { transform: scale(1.03); opacity: 1; }
+    100% { transform: scale(1); opacity: 1; }
+  }
+  @keyframes select-pop {
+    0% { transform: scale(0.82); box-shadow: 0 0 0 0 var(--select-ring, rgba(255, 107, 53, 0.5)); }
+    55% { transform: scale(1.1); box-shadow: 0 0 0 8px transparent; }
+    100% { transform: scale(1); box-shadow: 0 0 0 16px transparent; }
+  }
+  @keyframes pulse-ring {
+    0% { box-shadow: 0 0 0 0 rgba(255, 107, 53, 0.45); }
+    70% { box-shadow: 0 0 0 12px rgba(255, 107, 53, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(255, 107, 53, 0); }
+  }
+  @keyframes shimmer {
+    100% { transform: translateX(100%); }
+  }
+  @keyframes slide-up {
+    from { opacity: 0.55; transform: translateY(100%) scale(0.985); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+  }
+}
+
+/* 横屏手机（宽度够但高度 <500px）：在 lg 布局之上再做紧凑化——
+   更窄的导航栏、更小的间距，把竖向空间尽量还给内容。
+   v3 里定义在 screens.land（同类样式 land 优先），v4 用 @custom-variant 等价实现。 */
+@custom-variant land (@media (min-width: 640px) and (max-height: 500px));
+
+@layer base {
+  /* v3→v4 边框默认色还原：v4 的 border 默认 currentColor，
+     v3 时代默认 gray-200（官方升级指南给出的兼容段）。 */
+  *, ::after, ::before, ::backdrop, ::file-selector-button {
+    border-color: var(--color-gray-200, currentColor);
+  }
+}
+
+@layer base {
+  :root {
+    color-scheme: light;
+  /*
+   * 应用内容宽度。竖屏手机保持单列窄容器；
+   * 宽度 ≥640px（iPad 竖屏、手机横屏都落在这里）放宽，
+   * 与 tailwind.config 的 lg 断点是同一个条件，两处必须同步改——
+   * 否则会出现「左栏布局配 480px 内容」的错位。
+   */
+  --app-max-w: 480px;
+
+  /* 液态玻璃材质参数（唯一出口）：组件只挑档位，不再自写 backdrop-filter。
+     同屏模糊层预算：页头 / 底栏 / 悬浮条 + 至多一个 Sheet 或 Toast，≤3 层；
+     卡片与控件一律不模糊（见 .card / .glass-control）。 */
+  --glass-saturate: 1.4;
+  --glass-blur-bar: 16px;
+  --glass-blur-overlay: 12px;
+  --glass-blur-sheet: 10px;
+  --glass-blur-scrim: 7px;
+  }
+
+  @media (min-width: 640px) {
+    :root {
+      --app-max-w: 1100px;
+    }
+  }
+
+  /* 桌面大屏（Mac mini + 4K）：再放宽一档，配合 xl 的五列菜品格，
+     避免宽屏两侧留大片空白。xl 是 Tailwind 默认 1280px 断点。 */
+  @media (min-width: 1280px) {
+    :root {
+      --app-max-w: 1440px;
+    }
+  }
+
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+
+  body {
+    @apply bg-cream-200 text-ink-900 antialiased;
+    /* -apple-system 在苹果设备上让英文/数字走 SF Pro，中文自动落到苹方；
+       其他平台逐级退化到各自系统字体，零下载成本。 */
+    font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Hiragino Sans GB',
+      'Microsoft YaHei', system-ui, sans-serif;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-text-size-adjust: 100%;
+    /* 屏蔽 iOS 的双击缩放，点按响应更跟手 */
+    touch-action: manipulation;
+    overscroll-behavior-y: none;
+  }
+
+  button {
+    cursor: pointer;
+  }
+
+  input,
+  textarea,
+  select {
+    @apply outline-hidden;
+    -webkit-appearance: none;
+  }
+
+  ::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+  }
+}
+
+@layer components {
+  /* 移动优先：竖屏收成一列居中的手机视图，横屏/平板放宽以利用横向空间 */
+  .app-shell {
+    @apply mx-auto flex min-h-full w-full flex-col bg-cream-100;
+    max-width: var(--app-max-w);
+    /* 横屏刘海屏（如 iPhone/带圆角的 iPad）避免内容被切掉 */
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+  }
+
+  /* 与 .app-shell 同宽的底部固定条：底部导航 / 购物车栏 / 提交栏 */
+  .app-bar {
+    @apply mx-auto w-full;
+    max-width: var(--app-max-w);
+  }
+
+  /* 内容卡片 = 第三档玻璃（.glass-card 的别名）：一页几十张，绝不模糊；
+     厚度靠「半透明白渐变 + 渐变光边 + 透镜环 + 分层外阴影」表达。
+     注意：这里不再写实描边，虚线卡片需自己补 border + border-dashed。 */
+  .card {
+    @apply rounded-xl2;
+  }
+
+  .warm-gradient {
+    background-image: linear-gradient(135deg, #ff8a3d 0%, #ff6b35 55%, #f0521b 100%);
+  }
+
+  /* 首页头部专用（别与按钮共用的 .warm-gradient 混用）：顶部 64px（约状态栏高度）固定为
+     渐变起点橙，让 iOS standalone 的状态栏背板与头部无缝衔接；方向取竖直，左右两侧色彩
+     走势一致，不会像 135° 斜向渐变那样在状态栏下缘露出左右错位的接缝。 */
+  .hero-gradient {
+    background-image: linear-gradient(180deg, #ff8a3d 0, #ff8a3d 64px, #ff6b35);
+  }
+
+  /* 液态玻璃四档材质（全项目共用，别在组件里另写一套）：
+     - glass-overlay：悬浮件（购物车浮条 / 弹层面板 / 深色 Toast），blur 12px
+     - glass-bar：吸顶页头 / 底栏，blur 16px；glass-bar-quiet 给筛选条降级成近实色，控制同屏层数
+     - glass-tint：图片上的标签等无模糊表面，高白度保证小字对比度
+     - glass-card / glass-control：内容卡片与控件，不模糊，靠光边与透镜环塑形
+     光边：1px 三段渐变环（顶 62~66% / 左右 24~26% / 底 14~18%）+ 顶部白 45~50% 内高光
+     + 底部 2px 4blur 黑 18~20% 暗内边（深色玻璃暗内边换白）。
+     透镜环：内侧按控件高度 6~12% 的环带（--glass-edge，硬上限 12%），
+     左上亮→右下透渐变 + blur(0.3px)，中心保持清晰；小标签只留 2px 轻量版。
+     外阴影按档位走 --glass-shadow，避免卡片/控件混用浮层那套重投影。 */
+  .glass-overlay,
+  .glass-bar,
+  .glass-tint,
+  .glass-card,
+  .glass-control,
+  .card {
+    position: relative;
+    isolation: isolate;
+    border: 1px solid transparent;
+    background-origin: border-box;
+    background-clip: padding-box, border-box;
+    background-image:
+      linear-gradient(180deg, var(--glass-fill-top), var(--glass-fill-bottom)),
+      linear-gradient(
+        180deg,
+        var(--glass-rim-top) 0%,
+        var(--glass-rim-side) 50%,
+        var(--glass-rim-bottom) 100%
+      );
+    box-shadow:
+      var(--glass-shadow, var(--shadow-glass)),
+      inset 0 1px 1px var(--glass-inset-top),
+      inset 0 -2px 4px var(--glass-inset-bottom);
+  }
+
+  .glass-overlay::before,
+  .glass-bar::before,
+  .glass-tint::before,
+  .glass-card::before,
+  .glass-control::before,
+  .card::before {
+    content: '';
+    position: absolute;
+    inset: 1px;
+    z-index: -1;
+    padding: var(--glass-edge, 2px);
+    border-radius: inherit;
+    background: var(--glass-lens);
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    mask-composite: exclude;
+    /* 卡片/控件数量多，透镜环不再走 filter：1px 环带本身够细，
+       去掉 blur 少一层合成层，长列表滚动更稳 */
+    filter: blur(0.3px);
+    pointer-events: none;
+  }
+
+  .glass-card::before,
+  .glass-control::before,
+  .card::before {
+    filter: none;
+  }
+
+  .glass-overlay {
+    /* 6 个百分点的上下亮度差，避免纯均匀塑料面 */
+    --glass-fill-top: rgb(255 255 255 / 0.56);
+    --glass-fill-bottom: rgb(255 255 255 / 0.5);
+    --glass-rim-top: rgb(255 255 255 / 0.66);
+    --glass-rim-side: rgb(255 255 255 / 0.26);
+    --glass-rim-bottom: rgb(255 255 255 / 0.16);
+    --glass-inset-top: rgb(255 255 255 / 0.5);
+    --glass-inset-bottom: rgb(0 0 0 / 0.2);
+    --glass-lens: linear-gradient(
+      135deg,
+      rgb(255 255 255 / 0.34) 0%,
+      rgb(255 255 255 / 0.09) 38%,
+      rgb(255 255 255 / 0) 62%
+    );
+    --glass-edge: 5px;
+    --glass-filter: blur(var(--glass-blur-overlay)) saturate(var(--glass-saturate));
+    -webkit-backdrop-filter: var(--glass-filter);
+    backdrop-filter: var(--glass-filter);
+  }
+
+  .glass-bar {
+    /* 7 个百分点：页头/底栏也要有上亮下暗的厚度感 */
+    --glass-fill-top: rgb(255 252 250 / 0.55);
+    --glass-fill-bottom: rgb(255 248 243 / 0.48);
+    --glass-rim-top: rgb(255 255 255 / 0.64);
+    --glass-rim-side: rgb(255 255 255 / 0.24);
+    --glass-rim-bottom: rgb(255 255 255 / 0.14);
+    --glass-inset-top: rgb(255 255 255 / 0.45);
+    --glass-inset-bottom: rgb(0 0 0 / 0.2);
+    --glass-lens: linear-gradient(
+      135deg,
+      rgb(255 255 255 / 0.3) 0%,
+      rgb(255 255 255 / 0.07) 40%,
+      rgb(255 255 255 / 0) 62%
+    );
+    /* 56~62px 高的页头/底栏：6px ≈ 10%，在 6~12% 区间内 */
+    --glass-edge: 6px;
+    --glass-filter: blur(var(--glass-blur-bar)) saturate(var(--glass-saturate));
+    -webkit-backdrop-filter: var(--glass-filter);
+    backdrop-filter: var(--glass-filter);
+  }
+
+  /* 同屏已有页头 + 底栏两层模糊时，筛选条不再叠第三层：
+     改用近实色奶油玻璃，光边/透镜环保留，文字对比度反而更稳 */
+  .glass-bar-quiet {
+    --glass-fill-top: rgb(255 250 246 / 0.84);
+    --glass-fill-bottom: rgb(255 247 242 / 0.78);
+    --glass-filter: none;
+  }
+
+  /* 图片上的小标签（≤36px 高）：只保留 2px 轻量透镜环与轻内阴影，
+     不做宽边缘带、不做 blur，保证小字对比度 */
+  .glass-tint {
+    /* 标签压在图上是极端背景：白度抬到 0.98/0.97，
+       保证最坏（纯黑图）下 ink-400 小字仍 ≥4.5:1，ink-600 约 5.6:1 */
+    --glass-fill-top: rgb(255 255 255 / 0.98);
+    --glass-fill-bottom: rgb(255 255 255 / 0.97);
+    --glass-rim-top: rgb(255 255 255 / 0.66);
+    --glass-rim-side: rgb(255 255 255 / 0.26);
+    --glass-rim-bottom: rgb(255 255 255 / 0.18);
+    --glass-inset-top: rgb(255 255 255 / 0.4);
+    --glass-inset-bottom: rgb(0 0 0 / 0.2);
+    --glass-lens: linear-gradient(
+      135deg,
+      rgb(255 255 255 / 0.24) 0%,
+      rgb(255 255 255 / 0.05) 40%,
+      rgb(255 255 255 / 0) 62%
+    );
+    --glass-edge: 2px;
+    box-shadow:
+      0 2px 8px -4px rgb(58 48 42 / 0.12),
+      inset 0 1px 1px rgb(255 255 255 / 0.4),
+      inset 0 -1px 2px rgb(0 0 0 / 0.2);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+
+  /* 内容卡片：介于「实色纸片」与「浮层玻璃」之间的第三档。
+     0.86→0.80 的白色渐变让底下的奶油色微微透上来（有材质感），
+     但白度足够高，ink-400 小字仍 ≥4.5:1；不做 blur，长列表滚动不崩。
+     glass-card 与 .card 同一套参数，新组件可直接用前者。 */
+  .glass-card,
+  .card {
+    --glass-fill-top: rgb(255 255 255 / 0.86);
+    --glass-fill-bottom: rgb(255 253 251 / 0.8);
+    --glass-rim-top: rgb(255 255 255 / 0.95);
+    --glass-rim-side: rgb(255 255 255 / 0.5);
+    --glass-rim-bottom: rgb(255 255 255 / 0.28);
+    --glass-inset-top: rgb(255 255 255 / 0.85);
+    --glass-inset-bottom: rgb(58 48 42 / 0.06);
+    --glass-lens: linear-gradient(
+      135deg,
+      rgb(255 255 255 / 0.5) 0%,
+      rgb(255 255 255 / 0.12) 36%,
+      rgb(255 255 255 / 0) 60%
+    );
+    --glass-edge: 3px;
+    --glass-shadow: var(--shadow-glass-card);
+  }
+
+  /* 控件玻璃：胶囊按钮 / 图标按钮 / 搜索框 / 日期切换共用一档。
+     白度 0.78→0.68，比卡片更透一点，压在卡片上仍能看出层级；同样不模糊。 */
+  .glass-control {
+    --glass-fill-top: rgb(255 255 255 / 0.78);
+    --glass-fill-bottom: rgb(255 252 249 / 0.68);
+    --glass-rim-top: rgb(255 255 255 / 0.9);
+    --glass-rim-side: rgb(255 255 255 / 0.45);
+    --glass-rim-bottom: rgb(255 255 255 / 0.22);
+    --glass-inset-top: rgb(255 255 255 / 0.7);
+    --glass-inset-bottom: rgb(58 48 42 / 0.05);
+    --glass-lens: linear-gradient(
+      135deg,
+      rgb(255 255 255 / 0.45) 0%,
+      rgb(255 255 255 / 0.1) 40%,
+      rgb(255 255 255 / 0) 62%
+    );
+    --glass-edge: 2px;
+    --glass-shadow: var(--shadow-glass-control);
+  }
+
+  /* 分段控件的凹槽：与凸起的 glass-control 成对，用内阴影表达「嵌进面板」 */
+  .glass-track {
+    background-image: linear-gradient(180deg, rgb(58 48 42 / 0.07), rgb(58 48 42 / 0.045));
+    box-shadow:
+      inset 0 1px 2px rgb(58 48 42 / 0.12),
+      0 1px 0 rgb(255 255 255 / 0.6);
+  }
+
+  /* 深色玻璃（Toast 等）：底色压暗、文字走白；
+     底缘暗线换成白 18%，避免深色玻璃出现黑色割边 */
+  .glass-dark {
+    --glass-fill-top: rgb(31 27 24 / 0.78);
+    --glass-fill-bottom: rgb(31 27 24 / 0.7);
+    --glass-rim-top: rgb(255 255 255 / 0.6);
+    --glass-rim-side: rgb(255 255 255 / 0.24);
+    --glass-rim-bottom: rgb(255 255 255 / 0.2);
+    --glass-inset-top: rgb(255 255 255 / 0.45);
+    --glass-inset-bottom: rgb(255 255 255 / 0.18);
+    --glass-lens: linear-gradient(
+      135deg,
+      rgb(255 255 255 / 0.3) 0%,
+      rgb(255 255 255 / 0.07) 40%,
+      rgb(255 255 255 / 0) 62%
+    );
+    /* Toast 只有 36~40px 高，4px ≈ 11%，别按大浮条给厚边 */
+    --glass-edge: 4px;
+    --glass-filter: blur(var(--glass-blur-overlay)) saturate(1.3);
+  }
+
+  /* 弹层遮罩与面板：遮罩负责模糊背景，面板保持半透明奶油色 */
+  .sheet-scrim {
+    background: rgb(31 27 24 / 0.52);
+    -webkit-backdrop-filter: blur(var(--glass-blur-scrim)) saturate(1.1);
+    backdrop-filter: blur(var(--glass-blur-scrim)) saturate(1.1);
+  }
+
+  .sheet-panel {
+    /* 0.92→0.97：弹层底下常是首页那块橙色头图，太透会整体泛橙、停靠区看着像半透明 */
+    --glass-fill-top: rgb(255 248 243 / 0.97);
+    --glass-fill-bottom: rgb(253 246 240 / 0.97);
+    --glass-filter: blur(var(--glass-blur-sheet)) saturate(1.25);
+    -webkit-backdrop-filter: var(--glass-filter);
+    backdrop-filter: var(--glass-filter);
+  }
+
+  /* 弹层底边的实色垫片（见 ui/feedback.tsx 的 Sheet）：
+     iOS 键盘上沿的系统 chrome 是半透的，会把面板背后的橙色渐变透上来。
+     这块用与面板同色的实色把面板往下续一段，弹层看起来就一路贴到键盘。 */
+  .sheet-skirt {
+    background: #fdf6f0;
+  }
+
+  /* 移动端竖屏（≤430px）控件高度略小，边缘带同步收窄一档：
+     底栏 5px ≈ 9%、Toast 3px ≈ 8%，避免小屏出现塑料厚框 */
+  @media (max-width: 430px) {
+    .glass-overlay { --glass-edge: 4px; }
+    .glass-bar { --glass-edge: 5px; }
+    .glass-tint { --glass-edge: 2px; }
+    .glass-card,
+    .card { --glass-edge: 3px; }
+    .glass-control { --glass-edge: 2px; }
+    .glass-dark { --glass-edge: 3px; }
+  }
+
+  .chip {
+    @apply inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-medium;
+  }
+
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .skeleton {
+    @apply relative overflow-hidden bg-cream-300/70;
+  }
+
+  .skeleton::after {
+    content: '';
+    @apply absolute inset-0 -translate-x-full animate-shimmer;
+    background-image: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.75), transparent);
+  }
+}
+
+/* 键盘态不配任何偏移量：index.html 的 viewport 带 interactive-widget=resizes-content，
+   iOS 键盘弹出时布局视口原生缩到键盘上沿，弹层底边天然贴住键盘（见 ui/feedback.tsx）。
+   键盘态只留输入框：停靠区里标了 data-typing="hide" 的块（说明 / 快捷出口 / 主操作）
+   在键盘弹出时收起，输入框下边缘直接落在键盘配件栏上沿（见 ai/AiHelperSheet）。
+   必须放在 @layer 之外：这些块本身带 flex / grid 工具类，分层样式压不过 utilities。 */
+.sheet-panel[data-keyboard='true'] [data-typing='hide'] {
+  display: none;
+}
+
+/* 按压动效：弹簧曲线、只缩放 0.985；只过渡 transform/opacity
+   （放在 utilities 层之外，确保覆盖组件的 transition 工具类） */
+.press {
+  transition:
+    transform 310ms var(--ease-spring),
+    opacity 200ms ease;
+}
+
+.press:active {
+  transform: scale(0.985);
+}
+
+/* 按下即时反馈：90ms 缩到 0.94，只有 transform 一个属性，不产生立体感。
+   data-pressed 由组件的 pointerdown/up 驱动，比 :active 在 iOS 上更可靠。 */
+.control-press {
+  transition:
+    transform 90ms ease-out,
+    opacity 90ms ease-out,
+    background-color 120ms ease-out;
+}
+
+.control-press[data-pressed='true'] {
+  transform: scale(0.94);
+}
+
+/* 录音中的持续反馈：10 秒进度。两条都用 CSS 驱动，不跑 JS 逐帧：
+   - 面板里的药丸用底部 3px 进度条，transform: scaleX 走合成层；
+   - 首页圆钮用 SVG 圆环的 stroke-dashoffset，只在 40px 区域内绘制。
+   页面切后台时 useVoiceRecorder 会直接取消录音，动画随元素卸载，不存在后台空转。 */
+.voice-progress {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: 3px;
+  background: currentColor;
+  opacity: 0.9;
+  transform: scaleX(0);
+  transform-origin: left center;
+  animation: voice-progress var(--voice-max, 10s) linear forwards;
+}
+
+.voice-ring {
+  stroke-dashoffset: 100;
+  animation: voice-ring var(--voice-max, 10s) linear forwards;
+}
+
+@keyframes voice-progress {
+  to {
+    transform: scaleX(1);
+  }
+}
+
+@keyframes voice-ring {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* 用户关掉动效：按压改为静态变淡，进度动画隐藏，但录音态的底色/图标仍在 */
+@media (prefers-reduced-motion: reduce) {
+  .control-press,
+  .control-press[data-pressed='true'] {
+    transition: none;
+    transform: none;
+  }
+
+  .control-press[data-pressed='true'] {
+    opacity: 0.72;
+  }
+
+  .voice-progress,
+  .voice-ring {
+    animation: none;
+    opacity: 0;
+  }
+}
+
+/* 兜底：不支持 backdrop-filter 的浏览器、或系统开了「降低透明度」时，
+   玻璃件退回近实色，保证文字可读（iOS 设置→辅助功能→显示与文字大小）。 */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .glass-overlay,
+  .glass-bar,
+  .sheet-panel {
+    --glass-filter: none;
+    --glass-fill-top: rgb(255 252 250 / 0.96);
+    --glass-fill-bottom: rgb(255 248 243 / 0.94);
+  }
+  .glass-dark {
+    --glass-fill-top: rgb(31 27 24 / 0.96);
+    --glass-fill-bottom: rgb(31 27 24 / 0.94);
+  }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .glass-overlay,
+  .glass-bar,
+  .sheet-panel {
+    --glass-filter: none;
+    --glass-fill-top: rgb(255 252 250 / 0.96);
+    --glass-fill-bottom: rgb(255 248 243 / 0.94);
+  }
+  .glass-dark {
+    --glass-fill-top: rgb(31 27 24 / 0.96);
+    --glass-fill-bottom: rgb(31 27 24 / 0.94);
+  }
+}
+
+/* 系统「减弱动态效果」开启时（iOS：辅助功能→动态效果），动画与过渡压到近乎瞬时、
+   只留终态：入场类（fade-up/pop/select-pop/slide-up）直接到位，骨架屏 shimmer 与
+   新单高亮 pulse-ring 这两个 infinite 动画不再持续占用合成层。
+   只影响显式开启该设置的用户，默认观感不变。 */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

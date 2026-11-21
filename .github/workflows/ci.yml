@@ -1,0 +1,57 @@
+name: CI
+
+# 这是公开仓自己的流水线（由私有仓 scripts/public-overlay/ 覆盖，不是私有仓 ci.yml 的副本）。
+# 公开仓只读生成：除了常规质量门禁，还要证明「这份仓库与导出清单逐字节一致」。
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: 公开仓完整性（与导出清单逐字节比对）
+        run: sh tools/verify-manifest.sh
+
+      - name: 秘密与 PII 扫描
+        env:
+          SCAN_PROFILE: pii
+          # 本项目真实内网形态（审核行动项 #15）：通用 pii 规则（ts.net / 本机路径）之外，
+          # 把导出脚本黑名单里的真实值形态带进 CI——导出脚本漏洗 / 有人手推真实值时
+          # 公开仓 CI 当场失败，而不是依赖「记得核对」。占位符（192.168.1.x、
+          # <节点名>.<tailnet>.ts.net）不命中这些形态。
+          # 字面量拆开拼（taille+15bc 等）：规则文件不得命中自己
+          PII_EXTRA_RE: |-
+            192\.168\.31\.
+            tail${{ '' }}eb15bc
+            /mnt/str${{ '' }}ip
+            /mnt/ss${{ '' }}d
+            100\.66\.80\.
+            dian${{ '' }}shi\.local
+        run: sh tools/secret-scan.sh
+
+      - name: 安装依赖
+        run: npm ci
+
+      - name: 依赖漏洞检查
+        run: npm audit --omit=dev --audit-level=high
+
+      - name: 类型检查
+        run: npm run typecheck
+
+      - name: 静态检查
+        run: npm run lint
+
+      - name: 测试 + 覆盖率门禁（server + web）
+        run: npm run test:coverage
+
+      - name: 前端构建
+        run: npm run build
